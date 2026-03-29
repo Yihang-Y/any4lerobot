@@ -1,0 +1,24 @@
+[project]
+name = "any4lerobot"
+version = "0.1.0"
+description = "Dataset conversion utilities for LeRobot"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "lerobot",
+    "numpy<2",
+    "pyarrow>=14",
+    "av>=12",
+    "h5py>=3.10",
+    "ray[default]>=2.9",
+    "pandas>=2.0",
+    "tqdm>=4.66",
+    "huggingface-hub[cli]>=0.23",
+    "requests>=2.31",
+    "gsutil",
+    "tensorflow>=2.15,<2.17",
+    "tensorflow-datasets>=4.9",
+]
+
+[tool.uv]
+package = false

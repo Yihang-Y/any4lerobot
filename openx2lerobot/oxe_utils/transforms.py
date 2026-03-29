@@ -134,16 +134,30 @@ def bridge_orig_dataset_transform(trajectory: Dict[str, Any]) -> Dict[str, Any]:
         elif key == "observation":
             for key2 in trajectory[key]:
                 trajectory[key][key2] = trajectory[key][key2][1:]
+        elif key == "action" and isinstance(trajectory[key], dict):
+            for key2 in trajectory[key]:
+                trajectory[key][key2] = trajectory[key][key2][1:]
         else:
             trajectory[key] = trajectory[key][1:]
 
-    trajectory["action"] = tf.concat(
-        [
-            trajectory["action"][:, :6],
-            binarize_gripper_actions(trajectory["action"][:, -1])[:, None],
-        ],
-        axis=1,
-    )
+    if isinstance(trajectory["action"], dict):
+        trajectory["action"] = tf.concat(
+            (
+                trajectory["action"]["world_vector"],
+                trajectory["action"]["rotation_delta"],
+                tf.cast(trajectory["action"]["open_gripper"][:, None], tf.float32),
+            ),
+            axis=-1,
+        )
+        trajectory["language_instruction"] = trajectory["observation"]["natural_language_instruction"]
+    else:
+        trajectory["action"] = tf.concat(
+            [
+                trajectory["action"][:, :6],
+                binarize_gripper_actions(trajectory["action"][:, -1])[:, None],
+            ],
+            axis=1,
+        )
     trajectory = relabel_bridge_actions(trajectory)
     trajectory["observation"]["EEF_state"] = trajectory["observation"]["state"][:, :6]
     trajectory["observation"]["gripper_state"] = trajectory["observation"]["state"][:, -1:]
